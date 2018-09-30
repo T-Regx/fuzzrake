@@ -25,6 +25,16 @@ class DefaultController extends AbstractController
     }
 
     /**
+     * @Route("/idea.html", name="idea")
+     *
+     * @return Response
+     */
+    public function idea(): Response
+    {
+        return $this->render('frontend/idea.html.twig', []);
+    }
+
+    /**
      * @Route("/", name="main")
      * @Route("/index.html")
      *
