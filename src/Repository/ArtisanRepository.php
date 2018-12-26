@@ -76,7 +76,7 @@ class ArtisanRepository extends ServiceEntityRepository
 
     public function getDistinctOtherTypes(): array
     {
-        return $this->getDistinctItemsWithCountFromJoined('otherTypes', ';');
+        return $this->getDistinctItemsWithCountFromJoined('otherTypes');
     }
 
     public function getDistinctStyles(): array
@@ -86,7 +86,7 @@ class ArtisanRepository extends ServiceEntityRepository
 
     public function getDistinctOtherStyles(): array
     {
-        return $this->getDistinctItemsWithCountFromJoined('otherStyles', ';');
+        return $this->getDistinctItemsWithCountFromJoined('otherStyles');
     }
 
     public function getDistinctFeatures(): array
@@ -96,10 +96,10 @@ class ArtisanRepository extends ServiceEntityRepository
 
     public function getDistinctOtherFeatures(): array
     {
-        return $this->getDistinctItemsWithCountFromJoined('otherFeatures', ';');
+        return $this->getDistinctItemsWithCountFromJoined('otherFeatures');
     }
 
-    private function getDistinctItemsWithCountFromJoined(string $columnName, string $separator = ','): array
+    private function getDistinctItemsWithCountFromJoined(string $columnName, string $separator = "\n"): array
     {
         $dbResult = $this->createQueryBuilder('a')
             ->select("a.$columnName AS items")
@@ -136,5 +136,22 @@ class ArtisanRepository extends ServiceEntityRepository
             ->select('MAX(a.commissionsQuotesLastCheck)')
             ->getQuery()
             ->getSingleScalarResult(), new DateTimeZone('UTC'));
+    }
+
+    public function findBestMatches(string $name, string $formerly)
+    {
+        return $this->createQueryBuilder('a')
+            ->setParameters([
+                'name' => $name,
+                'formerly' => $formerly,
+                'empty' => '',
+            ])
+            ->where('
+                a.name = :name
+                OR a.name = :formerly
+                OR (a.formerly = :formerly AND a.formerly <> :empty)
+            ')
+            ->getQuery()
+            ->getResult();
     }
 }

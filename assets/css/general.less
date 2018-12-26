@@ -1,0 +1,115 @@
+body {
+  padding: 5em 1em 1em;
+}
+
+img[src="FurAffinity.svg"] {
+  height: 1em;
+}
+
+table#artisans {
+  border-collapse: collapse !important;
+  text-align: left;
+
+  .hidden {
+    display: none;
+  }
+
+  thead {
+    th {
+      vertical-align: middle;
+    }
+  }
+
+  tbody {
+    td {
+      cursor: pointer;
+      display: none;
+      vertical-align: middle;
+    }
+
+    td.name {
+      display: table-cell;
+      text-align: left;
+    }
+
+    td.features, td.types, td.styles {
+      text-align: left;
+      display: table-cell;
+      font-size: 75%;
+    }
+
+    td.commissions {
+      display: table-cell;
+      text-align: center;
+    }
+
+    td.maker-id {
+      display: table-cell;
+      font-family: monospace;
+    }
+
+    td.links {
+      display: table-cell;
+      text-align: right;
+      cursor: default;
+    }
+  }
+}
+
+div.dataTables_info {
+  white-space: normal !important;
+}
+
+#artisans_wrapper {
+  > div.row {
+    margin-left: 0;
+    margin-right: 0;
+
+    > div {
+      padding: 0;
+    }
+  }
+
+  > div.row:nth-child(2) > div.col-sm-12 {
+    overflow-x: auto;
+  }
+}
+
+div.footer {
+  font-size: 75%;
+}
+
+ul {
+  padding-left: 3ex;
+}
+
+#artisanLinks .url {
+  color: #007bff;
+}
+
+#makerId {
+  font-size: 80%;
+  font-family: monospace;
+  font-style: italic;
+  color: #aaa;
+}
+
+#makerId:empty {
+  display: none;
+}
+
+p.item-pills {
+  overflow-x: auto;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+#tracking_content img {
+  max-height: 15em;
+}
+
+.choices__list--dropdown .choices__item--selectable {
+  padding-right: 0 !important;
+}

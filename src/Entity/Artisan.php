@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
+use App\Utils\CompletenessCalc;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ArtisanRepository")
  * @ORM\Table(name="artisans")
  */
-class Artisan implements \JsonSerializable
+class Artisan
 {
     /**
      * @ORM\Id()
@@ -16,6 +18,11 @@ class Artisan implements \JsonSerializable
      * @ORM\Column(type="integer")
      */
     private $id;
+
+    /**
+     * @ORM\Column(type="string", length=31)
+     */
+    private $makerId;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -28,7 +35,7 @@ class Artisan implements \JsonSerializable
     private $formerly;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=511)
      */
     private $intro;
 
@@ -51,6 +58,11 @@ class Artisan implements \JsonSerializable
      * @ORM\Column(type="string", length=255)
      */
     private $city;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $productionModel;
 
     /**
      * @ORM\Column(type="string", length=1023)
@@ -78,9 +90,24 @@ class Artisan implements \JsonSerializable
     private $features;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=1023)
      */
     private $otherFeatures;
+
+    /**
+     * @ORM\Column(type="string", length=1023)
+     */
+    private $paymentPlans;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $speciesDoes;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $speciesDoesnt;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -91,6 +118,16 @@ class Artisan implements \JsonSerializable
      * @ORM\Column(type="string", length=255)
      */
     private $websiteUrl;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $pricesUrl;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $faqUrl;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -136,6 +173,16 @@ class Artisan implements \JsonSerializable
      * @ORM\Column(type="string", length=255)
      */
     private $queueUrl;
+
+    /**
+     * @ORM\Column(type="string", length=1023)
+     */
+    private $otherUrls;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $languages;
 
     /**
      * @ORM\Column(type="text")
@@ -299,26 +346,6 @@ class Artisan implements \JsonSerializable
         $this->commisionsQuotesCheckUrl = $commisionsQuotesCheckUrl;
 
         return $this;
-    }
-
-    /**
-     * Specify data which should be serialized to JSON.
-     *
-     * @see http://php.net/manual/en/jsonserializable.jsonserialize.php
-     *
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     *               which is a value of any type other than a resource
-     *
-     * @since 5.4.0
-     */
-    public function jsonSerialize()
-    {
-        $f = ['name', 'types', 'country', 'furAffinityUrl', 'deviantArtUrl', 'websiteUrl', 'facebookUrl', 'twitterUrl',
-            'tumblrUrl', 'commisionsQuotesCheckUrl', 'queueUrl', 'features', 'notes', ];
-
-        return array_map(function ($item) {
-            return $this->$item;
-        }, array_combine($f, $f));
     }
 
     public function getTypes(): ?string
@@ -499,5 +526,205 @@ class Artisan implements \JsonSerializable
         $this->intro = $intro;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMakerId()
+    {
+        return $this->makerId;
+    }
+
+    /**
+     * @param mixed $makerId
+     */
+    public function setMakerId($makerId): void
+    {
+        $this->makerId = $makerId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProductionModel()
+    {
+        return $this->productionModel;
+    }
+
+    /**
+     * @param mixed $productionModel
+     */
+    public function setProductionModel($productionModel): void
+    {
+        $this->productionModel = $productionModel;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentPlans()
+    {
+        return $this->paymentPlans;
+    }
+
+    /**
+     * @param mixed $paymentPlans
+     */
+    public function setPaymentPlans($paymentPlans): void
+    {
+        $this->paymentPlans = $paymentPlans;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpeciesDoes()
+    {
+        return $this->speciesDoes;
+    }
+
+    /**
+     * @param mixed $speciesDoes
+     */
+    public function setSpeciesDoes($speciesDoes): void
+    {
+        $this->speciesDoes = $speciesDoes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpeciesDoesnt()
+    {
+        return $this->speciesDoesnt;
+    }
+
+    /**
+     * @param mixed $speciesDoesnt
+     */
+    public function setSpeciesDoesnt($speciesDoesnt): void
+    {
+        $this->speciesDoesnt = $speciesDoesnt;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPricesUrl()
+    {
+        return $this->pricesUrl;
+    }
+
+    /**
+     * @param mixed $pricesUrl
+     */
+    public function setPricesUrl($pricesUrl): void
+    {
+        $this->pricesUrl = $pricesUrl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFaqUrl()
+    {
+        return $this->faqUrl;
+    }
+
+    /**
+     * @param mixed $faqUrl
+     */
+    public function setFaqUrl($faqUrl): void
+    {
+        $this->faqUrl = $faqUrl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOtherUrls()
+    {
+        return $this->otherUrls;
+    }
+
+    /**
+     * @param mixed $otherUrls
+     */
+    public function setOtherUrls($otherUrls): void
+    {
+        $this->otherUrls = $otherUrls;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLanguages()
+    {
+        return $this->languages;
+    }
+
+    /**
+     * @param mixed $languages
+     */
+    public function setLanguages($languages): void
+    {
+        $this->languages = $languages;
+    }
+
+    public function completeness(): ?int
+    {
+        return (new CompletenessCalc())
+            // Name not counted - makes no sense
+            // Formerly not counted - small minority has changed their names
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->makerId) // "force" to update - mandatory field
+            ->anyNotEmpty(CompletenessCalc::TRIVIAL, $this->intro)
+            ->anyNotEmpty(CompletenessCalc::AVERAGE, $this->since)
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->country)
+            ->anyNotEmpty(in_array($this->country, ['US', 'CA'])
+                ? CompletenessCalc::MINOR : CompletenessCalc::INSIGNIFICANT, $this->state)
+            ->anyNotEmpty(CompletenessCalc::IMPORTANT, $this->city)
+            ->anyNotEmpty(CompletenessCalc::IMPORTANT, $this->productionModel)
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->styles, $this->otherStyles)
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->types, $this->otherTypes)
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->features, $this->otherFeatures)
+            ->anyNotEmpty(CompletenessCalc::AVERAGE, $this->paymentPlans)
+            ->anyNotEmpty(CompletenessCalc::MINOR, $this->speciesDoes, $this->speciesDoesnt)
+            ->anyNotEmpty(CompletenessCalc::MINOR, $this->pricesUrl)
+            ->anyNotEmpty(CompletenessCalc::TRIVIAL, $this->faqUrl) // it's optional, but nice to have
+            ->anyNotEmpty(CompletenessCalc::TRIVIAL, $this->queueUrl) // it's optional, but nice to have
+            // FursuitReview not checked, because we can force makers to force their customers to write reviews
+            // ... shame...
+            ->anyNotEmpty(CompletenessCalc::CRUCIAL, $this->websiteUrl, $this->deviantArtUrl, $this->furAffinityUrl,
+                $this->twitterUrl, $this->facebookUrl, $this->tumblrUrl, $this->instagramUrl, $this->youtubeUrl)
+            // Commissions/quotes check URL not checked - we'll check if the CST had a match instead
+            ->anyNotEmpty(CompletenessCalc::MINOR, $this->languages)
+            ->anyNotNull(CompletenessCalc::IMPORTANT, $this->areCommissionsOpen)
+            // Notes are not supposed to be displayed, thus not counted
+            ->result();
+    }
+
+    public function set(string $fieldName, $newValue): self
+    {
+        if (!property_exists(self::class, $fieldName)) {
+            throw new InvalidArgumentException("Field $fieldName does not exist");
+        }
+
+        $setter = 'set'.ucfirst($fieldName);
+
+        call_user_func([$this, $setter], $newValue);
+
+        return $this;
+    }
+
+    public function get(string $fieldName)
+    {
+        if (!property_exists(self::class, $fieldName)) {
+            throw new InvalidArgumentException("Field $fieldName does not exist");
+        }
+
+        $getter = 'get'.ucfirst($fieldName);
+
+        return call_user_func([$this, $getter]);
     }
 }
