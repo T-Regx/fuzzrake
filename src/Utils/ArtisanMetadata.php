@@ -45,6 +45,7 @@ class ArtisanMetadata
     const MAKER_ID = 'MAKER_ID';
     const INTRO = 'INTRO';
     const NOTES = 'NOTES';
+    const PASSCODE = 'PASSCODE';
     const CONTACT_PERMIT = 'CONTACT_PERMIT';
     const CONTACT_METHOD = 'CONTACT_METHOD';
     /***** "PRETTY" NAMES END *****/
@@ -86,6 +87,7 @@ class ArtisanMetadata
         self::MAKER_ID => 'makerId',
         self::INTRO => 'intro',
         self::NOTES => 'notes',
+        self::PASSCODE => self::IGNORED_IU_FORM_FIELD,
         self::CONTACT_PERMIT => self::IGNORED_IU_FORM_FIELD,
         self::CONTACT_METHOD => self::IGNORED_IU_FORM_FIELD,
     ];
@@ -123,6 +125,16 @@ class ArtisanMetadata
         self::NOTES => '#.*#',
     ];
 
+    const LIST_FIELDS_PRETTY_NAMES = [
+        self::PRODUCTION_MODEL,
+        self::STYLES,
+        self::OTHER_STYLES,
+        self::ORDER_TYPES,
+        self::OTHER_ORDER_TYPES,
+        self::FEATURES,
+        self::OTHER_FEATURES,
+    ];
+
     private static $uiFormFieldIndexes = [];
     private static $pretty2modelFieldNameMap = [];
 
@@ -148,6 +160,11 @@ class ArtisanMetadata
         }
 
         return self::$pretty2modelFieldNameMap;
+    }
+
+    public static function isListField(string $prettyFieldName): bool
+    {
+        return in_array($prettyFieldName, self::LIST_FIELDS_PRETTY_NAMES);
     }
 
     private static function getUiFormIndexes(): array

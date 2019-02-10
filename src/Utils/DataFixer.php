@@ -30,6 +30,7 @@ class DataFixer
         'czech republic' => 'CZ',
         'denmark' => 'DK',
         'germany' => 'DE',
+        'finland' => 'FI',
         'uk|england|united kingdom' => 'GB',
         'ireland' => 'IE',
         'italia|italy' => 'IT',
@@ -45,16 +46,24 @@ class DataFixer
     private $io;
 
     /**
+     * @var DataDiffer
+     */
+    private $differ;
+
+    /**
      * @param SymfonyStyle $io
      */
     public function __construct(SymfonyStyle $io)
     {
         $this->io = $io;
         $this->io->getFormatter()->setStyle('wrong', new OutputFormatterStyle('red'));
+        $this->differ = new DataDiffer($io);
     }
 
     public function fixArtisanData(Artisan $artisan): Artisan
     {
+        $originalArtisan = clone $artisan;
+
         $artisan->setName($this->fixString($artisan->getName()));
         $artisan->setSince($this->fixSince($artisan->getSince()));
 
@@ -78,8 +87,10 @@ class DataFixer
         $artisan->setFacebookUrl($this->fixFacebookUrl($artisan->getFacebookUrl()));
         $artisan->setYoutubeUrl($this->fixYoutubeUrl($artisan->getYoutubeUrl()));
 
-        $artisan->setIntro($this->fixString($artisan->getIntro()));
+        $artisan->setIntro($this->fixIntro($artisan->getIntro()));
         $artisan->setNotes($this->fixNotes($artisan->getNotes()));
+
+        $this->differ->showDiff($originalArtisan, $artisan);
 
         return $artisan;
     }
@@ -90,7 +101,8 @@ class DataFixer
             $fieldValue = $artisan->get(ArtisanMetadata::PRETTY_TO_MODEL_FIELD_NAMES_MAP[$prettyFieldName]);
 
             if (!preg_match($validationRegexp, $fieldValue)) {
-                $this->io->writeln("{$artisan->getMakerId()}:{$prettyFieldName}:|:<wrong>{$fieldValue}</>|ABCDEFGHIJ|");
+                $fieldValue = Utils::safeStr($fieldValue);
+                $this->io->writeln("wr:{$artisan->getMakerId()}:$prettyFieldName:|:<wrong>$fieldValue</>|ABCDEFGHIJ|");
             }
         }
     }
@@ -102,6 +114,7 @@ class DataFixer
         $list = array_map('trim', $list);
         $list = array_filter($list);
         sort($list);
+        $list = array_unique($list);
         $result = implode("\n", $list);
 
         return $result;
@@ -126,7 +139,7 @@ class DataFixer
 
     private function fixTwitterUrl(string $input): string
     {
-        return preg_replace('#^(?:(?:(?:https?://)?(?:www\.|mobile\.)?twitter(?:\.com)?/)|@)([^/?]+)/?(?:\?lang=[a-z]{2,3})?$#i',
+        return preg_replace('#^(?:(?:(?:https?://)?(?:www\.|mobile\.)?twitter(?:\.com)?/)|@)([^/?]+)/?(?:\?(?:lang=[a-z]{2,3}|s=\d+))?$#i',
             'https://twitter.com/$1', trim($input));
     }
 
@@ -184,5 +197,10 @@ class DataFixer
         $result = preg_replace('#[ \t]{2,}#', ' ', $result);
 
         return trim($result);
+    }
+
+    private function fixIntro(string $input): string
+    {
+        return $this->fixString(str_replace("\n", ' ', $input));
     }
 }

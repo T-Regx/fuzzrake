@@ -45,27 +45,49 @@ class DefaultController extends AbstractController
     }
 
     /**
+     * @Route("/whoopsies.html", name="whoopsies")
+     *
+     * @return Response
+     */
+    public function whoopsies(): Response
+    {
+        return $this->render('frontend/whoopsies.html.twig', []);
+    }
+
+    /**
      * @Route("/", name="main")
      * @Route("/index.html")
      *
      * @return Response
      */
-    public function main(ArtisanRepository $artisanRepository): Response
+    public function main(ArtisanRepository $artisanRepository, string $projectDir): Response
     {
-        $artisans = $artisanRepository->getAll();
-        $countryCount = $artisanRepository->getDistinctCountriesCount();
-        $types = $artisanRepository->getDistinctTypes();
-        $styles = $artisanRepository->getDistinctStyles();
-        $features = $artisanRepository->getDistinctFeatures();
-        $countries = $artisanRepository->getDistinctCountries();
+        $countriesToCount = $artisanRepository->getDistinctCountriesToCountAssoc();
 
         return $this->render('frontend/main/main.html.twig', [
-            'artisans' => $artisans,
-            'countryCount' => $countryCount,
-            'types' => $types,
-            'styles' => $styles,
-            'features' => $features,
-            'countries' => $countries,
+            'artisans' => $artisanRepository->getAll(),
+            'countryCount' => $artisanRepository->getDistinctCountriesCount(),
+            'orderTypes' => $artisanRepository->getDistinctOrderTypes(),
+            'styles' => $artisanRepository->getDistinctStyles(),
+            'features' => $artisanRepository->getDistinctFeatures(),
+            'productionModels' => $artisanRepository->getDistinctProductionModels(),
+            'countries' => $this->getCountriesData($countriesToCount, $projectDir),
         ]);
+    }
+
+    private function getCountriesData(array $countriesToCount, string $projectDir): array
+    {
+        $countriesData = json_decode(file_get_contents($projectDir.'/assets/countries.json'), true);
+        $result = array_fill_keys(array_map(function (array $country) { return $country['region']; }, $countriesData), []);
+
+        foreach ($countriesData as $countryData) {
+            $result[$countryData['region']][] = array_merge($countryData, [
+                'count' => $countriesToCount[$countryData['code']],
+            ]);
+        }
+
+        ksort($result);
+
+        return $result;
     }
 }
