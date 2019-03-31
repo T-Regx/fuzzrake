@@ -26,10 +26,10 @@ class CommissionsStatusRegexps
         'TIMESPAN' => '(current(ly)?|(right )?now|at (this|the) time|for the time being|already|(now )?(always|permanently|indefinitely))',
     ];
     const FALSE_POSITIVES_REGEXES = [
-        '(once|when) (WE_ARE STATUS for COMMISSIONS|COMMISSIONS are STATUS)',
+        '(once|when) ((WE_ARE|WE) STATUS( for)? COMMISSIONS|COMMISSIONS are STATUS)',
         'will not be STATUS for COMMISSIONS',
-        '(art|painted glass) COMMISSIONS: STATUS',
-        'COMMISSIONS (status:)?STATUS( in)?( late| early)? (MONTHS|20\d\d)',
+        '(art|painted glass|illustrations?) COMMISSIONS( status)?: STATUS',
+        'COMMISSIONS (status:)?STATUS( in| for)?( late| early)? (MONTHS|20\d\d)',
     ];
     const GENERIC_REGEXES = [
         '((WE_ARE )?TIMESPAN|(TIMESPAN )?WE_ARE) \**STATUS\**( for)?( the| new| some| all| any more)?( fursuits)? (COMMISSIONS|projects|orders|quotes|work)( requests)?',
@@ -41,6 +41,7 @@ class CommissionsStatusRegexps
         '<p>COMMISSIONS (are|status:)</p><p>(TIMESPAN )?STATUS</p>',
         '<h2>"cawmission" status</h2><div>STATUS',
         '<p>status: STATUS</p>',
+        '(TIMESPAN|fursuits)( mode)?: STATUS',
         '<div class="([^"]*[^a-z])?COMMISSIONS-STATUS"></div>',
         '<h2>STATUS</h2>',
         '(>|[1-9]\d*/\d+ )slots?( TIMESPAN( -)?)? STATUS',

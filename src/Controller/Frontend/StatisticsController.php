@@ -29,7 +29,7 @@ class StatisticsController extends AbstractController
         'sleeves?',
         'claws?',
         'eyes?',
-        'noses?',
+        'noses?|nostril',
         'ears?',
         'paws?',
         'jaw|muzzle',
@@ -73,6 +73,23 @@ class StatisticsController extends AbstractController
             'commissionsStats' => $this->prepareCommissionsStatsTableData($commissionsStats),
             'completeness' => $this->prepareCompletenessData($artisanRepository->findAll()),
             'providedInfo' => $this->prepareProvidedInfoData($artisanRepository->findAll()),
+            'matchWords' => self::MATCH_WORDS,
+        ]);
+    }
+
+    /**
+     * @Route("/ordering.html", name="ordering")
+     *
+     * @param ArtisanRepository $artisanRepository
+     *
+     * @return Response
+     */
+    public function ordering(ArtisanRepository $artisanRepository): Response
+    {
+        $otherItems = $artisanRepository->getOtherItemsData();
+
+        return $this->render('frontend/statistics/ordering.html.twig', [
+            'otherItems' => $this->prepareListData($otherItems),
             'matchWords' => self::MATCH_WORDS,
         ]);
     }

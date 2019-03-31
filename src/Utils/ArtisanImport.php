@@ -9,14 +9,14 @@ use App\Entity\Artisan;
 class ArtisanImport
 {
     /**
-     * @var Artisan
+     * @var array
      */
-    private $newOriginalData;
+    private $rawNewData;
 
     /**
      * @var Artisan
      */
-    private $newFixedData;
+    private $newData;
 
     /**
      * @var Artisan
@@ -31,43 +31,35 @@ class ArtisanImport
     /**
      * @var string
      */
-    private $passcode;
+    private $providedPasscode;
 
-    public function __construct(string $passcode)
+    /**
+     * @var string
+     */
+    private $newRawDataHash;
+
+    public function __construct(array $rawNewData)
     {
-        $this->passcode = $passcode;
+        $this->rawNewData = $rawNewData;
+        $this->newRawDataHash = sha1(json_encode($rawNewData));
+
+        $this->providedPasscode = $rawNewData[ArtisanMetadata::getUiFormFieldIndexByPrettyName(ArtisanMetadata::PASSCODE)];
     }
 
     /**
      * @return Artisan
      */
-    public function getNewOriginalData(): Artisan
+    public function getNewData(): Artisan
     {
-        return $this->newOriginalData;
+        return $this->newData;
     }
 
     /**
-     * @param Artisan $newOriginalData
+     * @param Artisan $newData
      */
-    public function setNewOriginalData(Artisan $newOriginalData): void
+    public function setNewData(Artisan $newData): void
     {
-        $this->newOriginalData = $newOriginalData;
-    }
-
-    /**
-     * @return Artisan
-     */
-    public function getNewFixedData(): Artisan
-    {
-        return $this->newFixedData;
-    }
-
-    /**
-     * @param Artisan $newFixedData
-     */
-    public function setNewFixedData(Artisan $newFixedData): void
-    {
-        $this->newFixedData = $newFixedData;
+        $this->newData = $newData;
     }
 
     /**
@@ -105,8 +97,24 @@ class ArtisanImport
     /**
      * @return string
      */
-    public function getPasscode(): string
+    public function getProvidedPasscode(): string
     {
-        return $this->passcode;
+        return $this->providedPasscode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNewRawDataHash(): string
+    {
+        return $this->newRawDataHash;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawNewData(): array
+    {
+        return $this->rawNewData;
     }
 }

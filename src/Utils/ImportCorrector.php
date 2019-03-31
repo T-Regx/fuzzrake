@@ -8,9 +8,18 @@ use App\Entity\Artisan;
 
 class ImportCorrector
 {
+    const CMD_ACK_NEW = 'ack new';
+    const CMD_MATCH_NAME = 'match name';
+    const CMD_IGNORE_PIN = 'ignore pin';
+
     private $corrections = ['*' => []];
     private $acknowledgedNew = [];
     private $matchedNames = [];
+
+    /**
+     * @var array List of raw data hashes which contain invalid passcodes, to be approved & imported
+     */
+    private $passcodeExceptions = [];
 
     public function __construct(string $correctionDirectivesFilePath)
     {
@@ -20,6 +29,25 @@ class ImportCorrector
     public function correctArtisan(Artisan $artisan)
     {
         $this->applyCorrections($artisan, $this->getCorrectionsFor($artisan));
+    }
+
+    public function getMatchedName(string $makerId): ?string
+    {
+        if (!array_key_exists($makerId, $this->matchedNames)) {
+            return null;
+        } else {
+            return $this->matchedNames[$makerId];
+        }
+    }
+
+    public function isAcknowledged(string $makerId): bool
+    {
+        return in_array($makerId, $this->acknowledgedNew);
+    }
+
+    public function ignoreInvalidPasscodeForData(string $rawDataHash)
+    {
+        return in_array($rawDataHash, $this->passcodeExceptions);
     }
 
     private function readDirectivesFromFile(string $filePath)
@@ -51,12 +79,17 @@ class ImportCorrector
         $makerId = $buffer->readUntil(':');
 
         switch ($command) {
-            case 'ack new':
+            case self::CMD_ACK_NEW:
                 $this->acknowledgedNew[] = $makerId;
             break;
 
-            case 'match name':
+            case self::CMD_MATCH_NAME:
                 $this->matchedNames[$makerId] = $buffer->readUntil(':');
+            break;
+
+            case self::CMD_IGNORE_PIN:
+                // Maker ID kept only informative
+                $this->passcodeExceptions[] = $buffer->readUntil(':');
             break;
 
             default:
@@ -93,19 +126,5 @@ class ImportCorrector
         } else {
             return $this->corrections['*'];
         }
-    }
-
-    public function getMatchedName($makerId): ?string
-    {
-        if (!array_key_exists($makerId, $this->matchedNames)) {
-            return null;
-        } else {
-            return $this->matchedNames[$makerId];
-        }
-    }
-
-    public function isAcknowledged($makerId): bool
-    {
-        return in_array($makerId, $this->acknowledgedNew);
     }
 }
