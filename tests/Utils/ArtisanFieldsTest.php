@@ -13,12 +13,12 @@ use PHPUnit\Framework\TestCase;
  */
 class ArtisanFieldsTest extends TestCase
 {
-    private const REGEXP_CONSTRUCTOR = '#constructor\((?<parameters>(?:readonly [a-z]+: [a-z]+(?:\[\])?,?\s*)+)\)#si';
-    private const REGEXP_CONSTRUCTOR_PARAMETER = '#readonly (?<name>[a-z]+): [a-z]+(?<is_list>\[\])?(?:,|$)#i';
+    private const REGEXP_CONSTRUCTOR = '#constructor\((?<parameters>(?:(?:readonly )?[a-z]+: [a-z]+(?:\[\])?,?\s*)+)\)#si';
+    private const REGEXP_CONSTRUCTOR_PARAMETER = '#(?:readonly )?(?<name>[a-z]+): [a-z]+(?<is_list>\[\])?(?:,|$)#i';
 
     public function testArtisanTsModel(): void
     {
-        $modelSource = file_get_contents(__DIR__.'/../../assets/js/class/Artisan.ts');
+        $modelSource = file_get_contents(__DIR__.'/../../assets/scripts/class/Artisan.ts');
 
         static::assertTrue(Regexp::match(self::REGEXP_CONSTRUCTOR, $modelSource, $constructorMatch));
 
@@ -31,7 +31,7 @@ class ArtisanFieldsTest extends TestCase
 
             static::assertNotNull($field);
             static::assertEquals($field->modelName(), $parMatches['name'][$idx]);
-            static::assertEquals($field->isList(), !empty($parMatches['is_list'][$idx]));
+            static::assertEquals($field->isList(), !empty($parMatches['is_list'][$idx]), "{$field->modelName()} should be a list");
         }
 
         static::assertEmpty($fieldsInJson);

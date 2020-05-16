@@ -1,4 +1,4 @@
 ---
-db_dump_file_path: "{{ deployment_path }}/db_dump/db_dump_{{ ansible_date_time.iso8601 }}.nocommit.sql"
-
 php_fpm_docker_image_name: fuzzrake/php-fpm:latest
+beta_php_fpm_container_port: 9556
+prod_php_fpm_container_port: 9557

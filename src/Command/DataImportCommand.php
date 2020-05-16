@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Service\DataImportFactory;
-use App\Utils\Import\CSV;
-use App\Utils\Import\ImportException;
-use App\Utils\Import\Manager;
+use App\Tasks\DataImportFactory;
+use App\Utils\DataInput\CSV;
+use App\Utils\DataInput\DataInputException;
+use App\Utils\DataInput\Manager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,10 +24,10 @@ class DataImportCommand extends Command
 
     public function __construct(DataImportFactory $factory, EntityManagerInterface $objectManager)
     {
+        parent::__construct();
+
         $this->dataImportFactory = $factory;
         $this->objectManager = $objectManager;
-
-        parent::__construct();
     }
 
     protected function configure()
@@ -39,7 +39,7 @@ class DataImportCommand extends Command
     }
 
     /**
-     * @throws ImportException
+     * @throws DataInputException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

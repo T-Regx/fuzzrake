@@ -1,11 +1,25 @@
 {% extends '_base.html.twig' %}
 
-{% block title %}edit {{ artisan.name }}{% endblock %}
+{% block title %}{% if artisan.id is not null %}Edit: {{ artisan.name }}{% else %}New artisan{% endif %}{% endblock %}
 
 {% block body %}
-    <h1>{{ artisan.name }}</h1>
+    <h1>{{ block('title') }}</h1>
 
     {{ form_start(form) }}
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                {{ form_label(form.contactAllowed) }}
+                {{ form_widget(form.contactAllowed) }}
+            </div>
+            <div class="form-group col-md-7">
+                {{ form_label(form.contactInfoOriginal) }}
+                {{ form_widget(form.contactInfoOriginal) }}
+            </div>
+            <div class="form-group col-md-2">
+                {{ form_label(form.passcode) }}
+                {{ form_widget(form.passcode) }}
+            </div>
+        </div>
         <div class="form-row">
             <div class="form-group col-md-2">
                 {{ form_label(form.makerId) }}
@@ -196,23 +210,12 @@
             <div class="form-group col-md-6">
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                {{ form_label(form.contactAllowed) }}
-                {{ form_widget(form.contactAllowed) }}
-            </div>
-            <div class="form-group col-md-7">
-                {{ form_label(form.contactInfoOriginal) }}
-                {{ form_widget(form.contactInfoOriginal) }}
-            </div>
-            <div class="form-group col-md-2">
-                {{ form_label(form.passcode) }}
-                {{ form_widget(form.passcode) }}
-            </div>
-        </div>
 
         {{ form_widget(form.save) }}
-        {{ form_widget(form.delete) }}
+        {% if artisan.id is not null %}
+            {{ form_widget(form.delete) }}
+        {% endif %}
+
         {{ form_rest(form) }}
     {{ form_end(form) }}
 {% endblock %}
