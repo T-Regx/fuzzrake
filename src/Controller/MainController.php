@@ -7,6 +7,9 @@ namespace App\Controller;
 use App\Repository\ArtisanRepository;
 use App\Service\FilterService;
 use App\Service\IuFormService;
+use App\Utils\DateTime\DateTimeException;
+use App\Utils\DateTime\DateTimeUtils;
+use App\Utils\Species\Species;
 use Doctrine\ORM\UnexpectedResultException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,11 +23,11 @@ class MainController extends AbstractController
     /**
      * @Route("/", name="main")
      * @Route("/index.html")
-     * @Cache(maxage=3600, public=true)
+     * @Cache(public=true)
      *
-     * @throws UnexpectedResultException
+     * @throws UnexpectedResultException|DateTimeException
      */
-    public function main(Request $request, ArtisanRepository $artisanRepository, FilterService $filterService): Response
+    public function main(Request $request, ArtisanRepository $artisanRepository, FilterService $filterService, Species $species): Response
     {
         if ('hexometer' === $request->get('ref')) {
             return new Response('*Notices your scan* OwO what\'s this?', Response::HTTP_MISDIRECTED_REQUEST,
@@ -32,13 +35,18 @@ class MainController extends AbstractController
             );
         }
 
-        return $this->render('main/main.html.twig', [
+        $response = $this->render('main/main.html.twig', [
             'artisans'            => $artisanRepository->getAll(),
             'activeArtisansCount' => $artisanRepository->getActiveCount(),
             'makerIdsMap'         => $artisanRepository->getOldToNewMakerIdsMap(),
             'countryCount'        => $artisanRepository->getDistinctCountriesCount(),
             'filters'             => $filterService->getFiltersTplData(),
+            'species'             => $species->getSpeciesTree(),
         ]);
+
+        self::setExpires($response);
+
+        return $response;
     }
 
     /**
@@ -56,5 +64,27 @@ class MainController extends AbstractController
         }
 
         return $this->redirect($iuFormService->getUpdateUrl($artisan));
+    }
+
+    /**
+     * @throws DateTimeException
+     */
+    private static function setExpires(Response $response): void
+    {
+        $now = DateTimeUtils::getNowUtc();
+
+        $nextExpiresCandidates = [ // TODO: Move to configuration, make somehow connected to the Cron job; make safer assumptions (e.g. max 4-6h)?
+            DateTimeUtils::getUtcAt('6:10'),
+            DateTimeUtils::getUtcAt('18:10'),
+            DateTimeUtils::getUtcAt('tomorrow 6:10'),
+        ];
+
+        foreach ($nextExpiresCandidates as $nextExpires) {
+            if ($nextExpires > $now) {
+                $response->setExpires($nextExpires);
+
+                return;
+            }
+        }
     }
 }

@@ -27,8 +27,10 @@ services:
             $lists:                '%lists%'
             $projectDir:           '%kernel.project_dir%'
             $snapshotCacheDirPath: '%kernel.project_dir%/var/snapshots'
+            $speciesDefinitions:   '%species_definitions%'
             $states:               '%states%'
             $strings:              '%strings%'
+            $urls:                 '%urls%'
 
             $healthCheckValues:
                 MEMORY_AVAILABLE_MIN_MIBS: '%env(resolve:MEMORY_AVAILABLE_MIN_MIBS)%'
@@ -58,5 +60,9 @@ services:
         arguments:
             - "@doctrine.orm.default_result_cache"
 
-    App\Utils\Data\Definitions\Species:
-        arguments: [ '%species_definitions%' ]
+    App\Doctrine\Listeners\ArtisanUrlListener:
+        tags:
+            - name: 'doctrine.orm.entity_listener'
+              event: 'preUpdate'
+              entity: 'App\Entity\ArtisanUrl'
+              lazy: true
