@@ -16,7 +16,6 @@ use App\ValueObject\Routing\RouteName;
 use Doctrine\ORM\UnexpectedResultException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -28,20 +27,30 @@ class MainController extends AbstractController
     #[Route(path: '/', name: RouteName::MAIN)]
     #[Route(path: '/index.html')]
     #[Cache(public: true)]
-    public function main(Request $request, ArtisanRepository $artisanRepository, MakerIdRepository $makerIdRepository, FilterService $filterService, Species $species, StatisticsService $statistics): Response
+    public function main(ArtisanRepository $artisanRepository, MakerIdRepository $makerIdRepository, FilterService $filterService, Species $species, StatisticsService $statistics): Response
     {
-        if ('hexometer' === $request->get('ref')) {
-            return new Response('*Notices your scan* OwO what\'s this?', Response::HTTP_MISDIRECTED_REQUEST,
-                ['Content-Type' => 'text/plain; charset=UTF-8']
-            );
-        }
-
         $response = $this->render('main/main.html.twig', [
             'artisans'            => Artisan::wrapAll($artisanRepository->getAll()),
             'makerIdsMap'         => $makerIdRepository->getOldToNewMakerIdsMap(),
             'stats'               => $statistics->getMainPageStats(),
             'filters'             => $filterService->getFiltersTplData(),
             'species'             => $species->getTree(),
+        ]);
+
+        self::setExpires($response);
+
+        return $response;
+    }
+
+    /**
+     * @throws DateTimeException
+     */
+    #[Route(path: '/new.html', name: RouteName::NEW_ARTISANS)]
+    #[Cache(public: true)]
+    public function newArtisans(ArtisanRepository $artisanRepository): Response
+    {
+        $response = $this->render('main/new.html.twig', [
+            'artisans' => Artisan::wrapAll($artisanRepository->getNew()),
         ]);
 
         self::setExpires($response);
